@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Forma proqramı</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E8ECEA; --surface:#FFFFFF; --ink:#15222A; --muted:#5A6A71; --line:#CDD5D2;
+  --accent:#2448C9; --accent-ink:#FFFFFF; --warn:#B87400; --ok:#1E7A4F; --soft:#DDE3F7;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10181C; --surface:#18242A; --ink:#E6ECEA; --muted:#98A8AE; --line:#2A3A41;
+    --accent:#7F9BFF; --accent-ink:#0D1633; --warn:#F0B34A; --ok:#5FC795; --soft:#1F2C52;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10181C; --surface:#18242A; --ink:#E6ECEA; --muted:#98A8AE; --line:#2A3A41;
+  --accent:#7F9BFF; --accent-ink:#0D1633; --warn:#F0B34A; --ok:#5FC795; --soft:#1F2C52;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5;
+  -webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:"Inter Tight","Noto Sans",system-ui,sans-serif;line-height:1.15;margin:0}
+main{max-width:640px;margin:0 auto;padding:16px 16px 110px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* header */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:8px 2px 18px}
+.top h1{font-size:28px;font-weight:800;letter-spacing:-.02em}
+.top p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.pill{font-size:13px;padding:6px 10px;border-radius:999px;background:var(--soft);color:var(--ink);white-space:nowrap}
+
+/* tabs */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs div{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+nav.tabs button{background:none;border:0;padding:12px 4px 14px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
+nav.tabs button[aria-selected="true"]{color:var(--accent);box-shadow:inset 0 3px 0 var(--accent)}
+.view{display:none}.view.on{display:block}
+
+/* day switcher */
+.days{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.days button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 4px;cursor:pointer;text-align:center}
+.days b{display:block;font-family:"Inter Tight",sans-serif;font-size:30px;font-weight:800;line-height:1}
+.days span{font-size:11px;color:var(--muted)}
+.days button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.days button[aria-pressed="true"] span{color:var(--accent-ink);opacity:.85}
+.next{font-size:10px;display:block;margin-top:2px;font-weight:600}
+
+.dayhead{display:flex;gap:14px;align-items:center;margin:4px 0 14px}
+.dayhead .big{font-family:"Inter Tight",sans-serif;font-size:64px;font-weight:800;line-height:.8;color:var(--accent)}
+.dayhead h2{font-size:20px}
+.dayhead p{margin:2px 0 0;color:var(--muted);font-size:14px}
+
+.block{background:var(--surface);border-radius:16px;padding:6px 0;margin-bottom:14px;border:1px solid var(--line)}
+.block > h3{font-size:15px;padding:10px 16px 6px;color:var(--muted);font-weight:700}
+details.ex{border-top:1px solid var(--line)}
+details.ex:first-of-type{border-top:0}
+.block > h3 + details.ex{border-top:0}
+details.ex summary{list-style:none;cursor:pointer;padding:12px 16px;display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center}
+details.ex summary::-webkit-details-marker{display:none}
+.exn{font-weight:600}
+.exd{font-family:"Inter Tight",sans-serif;font-weight:700;font-size:15px;white-space:nowrap}
+.exs{grid-column:1/-1;font-size:13px;color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:6px;margin-left:6px;vertical-align:1px}
+.tag.l{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.tag.c{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+details.ex[open] summary{background:color-mix(in srgb,var(--soft) 55%,transparent)}
+.cue{padding:4px 16px 14px 16px;font-size:14px}
+.cue ul{margin:6px 0 0;padding-left:18px}
+.cue li{margin:3px 0}
+.cue .why{color:var(--muted);margin-top:8px}
+
+/* prose cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.card h2{font-size:19px;margin-bottom:8px}
+.card h3{font-size:16px;margin:14px 0 6px}
+.card p{margin:6px 0}
+.card ul{margin:6px 0;padding-left:20px}
+.card li{margin:4px 0}
+.macro{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0 4px}
+.macro div{background:var(--bg);border-radius:12px;padding:10px 6px;text-align:center}
+.macro b{display:block;font-family:"Inter Tight",sans-serif;font-size:22px;font-weight:800}
+.macro span{font-size:12px;color:var(--muted)}
+.meal{display:grid;grid-template-columns:auto 1fr auto;gap:10px;padding:10px 0;border-top:1px solid var(--line);align-items:baseline}
+.meal:first-of-type{border-top:0}
+.meal .t{font-size:13px;color:var(--muted);width:62px}
+.meal .p{font-family:"Inter Tight",sans-serif;font-weight:700;font-size:14px;white-space:nowrap}
+.note{font-size:14px;color:var(--muted)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 6px;border-top:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;border-top:0}
+
+/* log */
+.seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:14px}
+.seg button{flex:1;border:0;background:none;padding:9px;border-radius:9px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+label.f{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+input.in,select.in{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:16px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.lex{border-top:1px solid var(--line);padding:12px 0}
+.lex:first-child{border-top:0;padding-top:4px}
+.lex .h{display:flex;justify-content:space-between;gap:8px;font-weight:600;margin-bottom:6px}
+.lex .h small{font-weight:400;color:var(--muted);font-size:12px;text-align:right}
+.sets{display:grid;grid-template-columns:28px 1fr 1fr;gap:6px 8px;align-items:center}
+.sets span{font-size:13px;color:var(--muted);text-align:center}
+.sets input{padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);width:100%;font-size:16px}
+.btn{display:block;width:100%;border:0;border-radius:12px;background:var(--accent);color:var(--accent-ink);padding:14px;font-weight:700;font-size:16px;cursor:pointer;margin-top:12px}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);
+  padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+.hist{font-size:14px}
+.hist .it{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.hist .it:first-child{border-top:0}
+.hist button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:0 4px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 12px}
+.stats div{background:var(--bg);border-radius:12px;padding:10px 8px}
+.stats b{display:block;font-family:"Inter Tight",sans-serif;font-size:22px;font-weight:800}
+.stats span{font-size:12px;color:var(--muted)}
+svg.chart{width:100%;height:auto;display:block}
+.sync{font-size:12px;color:var(--muted);text-align:center;margin-top:14px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+<style>
+.wkbar{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.wkbar .f{font-size:13px;color:var(--muted)}
+.wk{display:flex;gap:6px}
+.wk button{width:38px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-weight:700;cursor:pointer}
+.wk button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.wkinfo{font-size:14px;margin:0 0 14px;color:var(--muted)}
+.ssl{display:inline-block;min-width:26px;font-family:"Inter Tight",sans-serif;font-weight:800;color:var(--accent);margin-right:4px}
+.alt{font-size:13px;color:var(--muted);margin-top:8px}
+a.vid{display:inline-block;margin-top:8px;font-size:14px;font-weight:600;color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor}
+.sets.c4{grid-template-columns:28px 1fr 1fr 1fr}
+.sets.c1{grid-template-columns:28px 1fr}
+.sets .hd{font-size:11px;color:var(--muted);text-align:left}
+.setctl{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:8px}
+.setctl span{font-size:13px;color:var(--muted);min-width:44px;text-align:center}
+.setctl button{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:7px 12px;font-weight:600;font-size:14px;cursor:pointer}
+.setctl button:disabled{opacity:.4;cursor:default}
+.chk{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer}
+.chk input{width:22px;height:22px;accent-color:var(--accent)}
+.lex .unit{font-size:12px;color:var(--muted);margin:-2px 0 6px}
+details.sched summary{list-style:none;cursor:pointer}
+details.sched summary::-webkit-details-marker{display:none}
+details.sched summary h2{margin:0}
+details.sched summary h2::after{content:" +";color:var(--muted)}
+details.sched[open] summary h2::after{content:" –"}
+details.sched[open] summary{margin-bottom:10px}
+.card a{color:var(--accent)}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2448C9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Forma">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+</head>
+<body>
+<main>
+  <header class="top">
+    <div>
+      <h1>Forma proqramı</h1>
+      <p>177 sm · hədəf 74 kq · 4 həftəlik plan</p>
+    </div>
+    <span class="pill" id="curw">76 kq</span>
+  </header>
+
+  <section class="view on" id="v-plan" aria-label="Məşq planı">
+    <div class="wkbar">
+      <span class="f">Həftə</span>
+      <div class="wk" id="wk" role="group" aria-label="Həftə seç"></div>
+    </div>
+    <p class="wkinfo" id="wkinfo"></p>
+    <div class="days" id="days" role="group" aria-label="Gün seç"></div>
+    <div id="dayview"></div>
+    <details class="card sched">
+      <summary><h2>Həftəlik bölgü və qaydalar</h2></summary>
+      <div class="tablewrap"><table>
+        <tr><th>Gün</th><th>Məşq</th></tr>
+        <tr><td>Bazar ertəsi</td><td>A, itələmə + ayaq önü (axşam, 75 dəq)</td></tr>
+        <tr><td>Çərşənbə</td><td>B, sağrı + dartma (axşam, 75 dəq)</td></tr>
+        <tr><td>Cümə</td><td>C, birtərəfli iş + tarazlıq (axşam, 75 dəq)</td></tr>
+        <tr><td>Şənbə və ya bazar</td><td>D, kardio + kondisiya (gündüz, 60 dəq)</td></tr>
+        <tr><td>Digər günlər</td><td>İstirahət, gündə 8–10 min addım</td></tr>
+      </table></div>
+      <h3>İrəliləmə</h3>
+      <div class="tablewrap"><table>
+        <tr><th>Həftə</th><th>Güc günləri</th><th>Kardio</th><th>D günü</th></tr>
+        <tr><td>1</td><td>RIR 3. Texnikanı öyrənin, işçi çəkiləri müəyyən edin.</td><td>20 dəq</td><td>30 dəq + 3 dövrə</td></tr>
+        <tr><td>2</td><td>RIR 2. Eyni çəki ilə təkrarları aralığın yuxarısına aparın.</td><td>20 dəq</td><td>35 dəq + 3 dövrə</td></tr>
+        <tr><td>3</td><td>RIR 2. Yuxarı həddə çatdınızsa, çəkini bir pillə artırın.</td><td>25 dəq</td><td>35 dəq + 4 dövrə</td></tr>
+        <tr><td>4</td><td>RIR 1–2. Ən yaxşı nəticələri qeyd edin.</td><td>25 dəq</td><td>40 dəq + 4 dövrə</td></tr>
+      </table></div>
+      <p><b>Çəki artırma:</b> üç setin hamısında aralığın yuxarı həddini təmiz formada etdikdə çəkini bir pillə artırın, təkrarlar yenidən aşağı həddən başlayır. Kalori kəsirində çəkini saxlamaq da uğurdur.</p>
+      <p><b>Superset:</b> "a" setindən dərhal sonra "b" seti, sonra fasilə.</p>
+      <h3>Ümumi texnika</h3>
+      <ul>
+        <li><b>Bracing:</b> setdən əvvəl nəfəs alın, qarını 360° gərginləşdirin, ağır hissədə nəfəs verin.</li>
+        <li><b>Lordoz:</b> qabırğalar aşağı; oturaq hərəkətlərdə bel arxalığa yapışıq.</li>
+        <li><b>Skolioz:</b> birtərəfli hərəkətlərə soldan başlayın; sağ tərəf soldan çox təkrar etmir.</li>
+        <li><b>Temp:</b> endirmə 2–3 san, qaldırma 1 san.</li>
+        <li><b>Ağrı qaydası:</b> kəskin, sancan, ayağa vuran və ya oynaq ağrısında dayanıb alternativi edin.</li>
+      </ul>
+    </details>
+  </section>
+
+  <section class="view" id="v-food" aria-label="Qidalanma">
+    <div class="card">
+      <h2>Gündəlik hədəf</h2>
+      <p class="note">Həftədə 0.3–0.5 kq itki. 74 kq-a 6–10 həftəyə çatmaq realdır; daha sürətli arıqlama əzələ itkisi deməkdir.</p>
+      <div class="macro">
+        <div><b>2150</b><span>kkal</span></div>
+        <div><b>140</b><span>zülal, q</span></div>
+        <div><b>65</b><span>yağ, q</span></div>
+        <div><b>235</b><span>karb, q</span></div>
+      </div>
+      <p class="note">Aralıq: 2100–2200 kkal, zülal 130–150 q. Məşq olmayan günlərdə karbohidratı ~40 q azaldın.</p>
+    </div>
+    <div class="card">
+      <h2>Nümunə gün</h2>
+      <div class="meal"><span class="t">Səhər</span><span>3 yumurta + 1 ağ, 40 q pendir, 60 q yulaf, pomidor-xiyar</span><span class="p">35 q</span></div>
+      <div class="meal"><span class="t">Günorta</span><span>180 q toyuq döşü və ya dana əti, 150 q (bişmiş) qarabaşaq/düyü, böyük salat, 1 qaşıq zeytun yağı</span><span class="p">45 q</span></div>
+      <div class="meal"><span class="t">Ara</span><span>250 q qatıq/süzmə + 1 meyvə, bir ovuc qoz</span><span class="p">20 q</span></div>
+      <div class="meal"><span class="t">Axşam</span><span>200 q balıq və ya mərci + toyuq, bişmiş tərəvəz, 1 dilim çörək</span><span class="p">40 q</span></div>
+      <div class="meal"><span class="t">Gecə</span><span>Lazım olsa: 200 q kəsmik</span><span class="p">+20 q</span></div>
+    </div>
+    <div class="card">
+      <h2>Qaydalar</h2>
+      <ul>
+        <li>Hər əsas yeməkdə 35–45 q zülal. Kəsirdə əzələni qoruyan əsas faktordur.</li>
+        <li>Gündə ən azı 400 q tərəvəz, 2.5–3 litr su.</li>
+        <li>Creatine: hər gün 3–5 q, yükləmə fazası lazım deyil.</li>
+        <li>Ən asan qənaət: şirin içkilər, şirniyyat, çörək porsiyası və axşam gec qəlyanaltılar.</li>
+        <li>Spirtli içki həm kalori, həm yuxu keyfiyyəti baxımından ən çox mane olandır.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Tənzimləmə</h2>
+      <p>Həftədə 3–4 dəfə səhər, tualetdən sonra çəkin və həftəlik ortalamaya baxın.</p>
+      <div class="tablewrap"><table>
+        <tr><th>2 həftəlik ortalama</th><th>Nə etməli</th></tr>
+        <tr><td>Düşmür</td><td>Gündə ~150 kkal azaldın (karbdan)</td></tr>
+        <tr><td>0.3–0.5 kq/həftə</td><td>Davam edin</td></tr>
+        <tr><td>0.7 kq-dan çox/həftə</td><td>~150 kkal artırın</td></tr>
+        <tr><td>Çəki dayanıb, bel azalır</td><td>Hər şey düzgündür</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-health" aria-label="Duruş və sağlamlıq">
+    <div class="card">
+      <h2>Bel, skolioz və lordoz</h2>
+      <p>17° skoliozu məşq sümük səviyyəsində düzəltmir; yetkinlərdə əyrilik əsasən sabitdir. Çanağın önə əyilməsi (lordoz) isə əzələ balansı ilə xeyli dəyişə bilər. Skolioza xüsusi yanaşma üçün Schroth metodu ilə işləyən fizioterapevt ən düzgün əlavədir.</p>
+      <h3>Gün ərzində</h3>
+      <ul>
+        <li>Ayaq üstə: qabırğanı çanağın üstünə yığın, qarını zorla içəri çəkmədən.</li>
+        <li>Oturarkən hər 45 dəqiqədən bir qalxıb 1 dəqiqə yeriyin.</li>
+        <li>Məşq olmayan günlərdə D günündəki mobillik blokunu (10 dəq) evdə də edə bilərsiniz.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>Seksual sağlamlıq və enerji</h2>
+      <h3>1. Kegel</h3>
+      <ul>
+        <li>Gündə 3 dəfə: 10 × (5 san sıxma + 5 san buraxma), sonra 10 sürətli sıxma.</li>
+        <li>Nəfəsi saxlamayın; qarın, bud, sağrı boş qalır. Buraxma mərhələsi sıxma qədər vacibdir.</li>
+        <li>İlk nəticələr adətən 6–12 həftədə hiss olunur. <a class="vid" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=kegel+exercises+for+men+physiotherapist">YouTube-da izah</a></li>
+      </ul>
+      <h3>2. Kardio və damar sağlamlığı</h3>
+      <p>Ereksiya birbaşa damar funksiyasından asılıdır. Həftədə 90–150 dəq zona-2 kardio bu sahədə ən sübut olunmuş vasitələrdən biridir.</p>
+      <h3>3. Yuxu 7–8 saat</h3>
+      <p>Testosteronun əsas hissəsi yuxuda istehsal olunur. Qısa yuxu bir neçə həftədə səviyyəni aşağı sala bilər.</p>
+      <h3>4. Bel ölçüsü</h3>
+      <p>Kişilər üçün 94 sm-dən aşağı hədəfdir; çəkidən daha informativ göstəricidir.</p>
+      <h3>5. Stress, alkoqol, siqaret</h3>
+      <p>Hər üçü birbaşa təsir edir.</p>
+    </div>
+    <div class="card">
+      <h2>Həkim yoxlaması</h2>
+      <p>Ürək, böyrək, qaraciyər, ağciyər müayinələri hormonları göstərmir. Narazılıq davam edirsə, uroloq və ya androloqa müraciət edin. Adətən səhər 7–10 arası bu analizlər istənilir:</p>
+      <ul>
+        <li>Ümumi testosteron, SHBG, LH</li>
+        <li>Prolaktin, TSH</li>
+        <li>Qlükoza və HbA1c, lipid profili</li>
+        <li>D vitamini</li>
+      </ul>
+      <p class="note">Nəticələri buraya gətirsəniz, proqramla birlikdə qiymətləndirə bilərik.</p>
+    </div>
+  </section>
+
+  <section class="view" id="v-log" aria-label="Qeydlər">
+    <div class="seg" role="group" aria-label="Qeyd növü">
+      <button type="button" data-seg="w" aria-pressed="true">Məşq</button>
+      <button type="button" data-seg="b" aria-pressed="false">Bədən</button>
+      <button type="button" data-seg="h" aria-pressed="false">Tarixçə</button>
+    </div>
+    <div id="seg-w">
+      <div class="card">
+        <div class="row2">
+          <div><label class="f" for="wdate">Tarix</label><input class="in" type="date" id="wdate"></div>
+          <div><label class="f" for="wday">Gün</label><select class="in" id="wday"></select></div>
+        </div>
+        <p class="note" id="wlast"></p>
+        <div id="wform"></div>
+        <button class="btn" type="button" id="wsave">Məşqi yadda saxla</button>
+      </div>
+    </div>
+    <div id="seg-b" hidden>
+      <div class="card">
+        <div class="row2">
+          <div><label class="f" for="bdate">Tarix</label><input class="in" type="date" id="bdate"></div>
+          <div><label class="f" for="bw">Çəki, kq</label><input class="in" type="number" step="0.1" inputmode="decimal" id="bw" placeholder="76.0"></div>
+        </div>
+        <div class="row2">
+          <div><label class="f" for="bwaist">Bel, sm (göbək səviyyəsi)</label><input class="in" type="number" step="0.5" inputmode="decimal" id="bwaist"></div>
+          <div><label class="f" for="bsleep">Yuxu, saat</label><input class="in" type="number" step="0.5" inputmode="decimal" id="bsleep"></div>
+        </div>
+        <div class="row2">
+          <div><label class="f" for="bsteps">Addım (min)</label><input class="in" type="number" step="0.5" inputmode="decimal" id="bsteps" placeholder="8"></div>
+          <div><label class="f" for="bkegel">Kegel, neçə dəfə</label>
+            <select class="in" id="bkegel"><option value="">—</option><option>0</option><option>1</option><option>2</option><option>3</option></select></div>
+        </div>
+        <div class="row2">
+          <div><label class="f" for="benergy">Enerji (1–5)</label>
+            <select class="in" id="benergy"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+          <div></div>
+        </div>
+        <button class="btn" type="button" id="bsave">Ölçünü yadda saxla</button>
+      </div>
+      <div class="card">
+        <h2>Çəki trendi</h2>
+        <div class="stats" id="bstats"></div>
+        <div id="bchart"></div>
+      </div>
+    </div>
+    <div id="seg-h" hidden>
+      <div class="card hist" id="hist"></div>
+      <div class="card">
+        <h2>Ehtiyat nüsxə</h2>
+        <p class="note">Məlumat yalnız bu telefonda saxlanır. Ayda bir dəfə faylı yükləyib özünüzə göndərin (Telegram, e-poçt və s.).</p>
+        <button class="btn" type="button" id="dl">Ehtiyat faylını yüklə</button>
+        <button class="btn ghost" type="button" id="export">Mətn kimi kopyala</button>
+        <h3 style="margin-top:18px">Bərpa və köçürmə</h3>
+        <p class="note">Faylı seçin və ya köhnə proqramdan kopyaladığınız mətni aşağıya yapışdırın. Mövcud qeydlərlə birləşdirilir, təkrarlar atılır.</p>
+        <label class="btn ghost" style="text-align:center">Fayl seç<input type="file" id="impf" accept=".json,application/json,text/plain" hidden></label>
+        <textarea class="in" id="impt" rows="4" style="margin-top:12px" placeholder="JSON mətnini bura yapışdırın"></textarea>
+        <button class="btn ghost" type="button" id="impbtn">Mətni idxal et</button>
+      </div>
+    </div>
+    <p class="sync" id="sync">Məlumat bu telefonda saxlanır.</p>
+  </section>
+</main>
+
+<nav class="tabs" aria-label="Bölmələr"><div role="tablist">
+  <button role="tab" aria-selected="true" data-tab="plan">Plan</button>
+  <button role="tab" aria-selected="false" data-tab="food">Qida</button>
+  <button role="tab" aria-selected="false" data-tab="health">Sağlamlıq</button>
+  <button role="tab" aria-selected="false" data-tab="log">Qeyd</button>
+</div></nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const yt=q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q);
+const WEEKS={1:{rir:"3",c:20,d:30,r:3,t:"Texnikanı öyrənin, işçi çəkiləri müəyyən edib qeyd edin."},
+  2:{rir:"2",c:20,d:35,r:3,t:"Eyni çəki ilə təkrarları aralığın yuxarısına aparın."},
+  3:{rir:"2",c:25,d:35,r:4,t:"Aralığın yuxarı həddinə çatdınızsa, çəkini bir pillə artırın."},
+  4:{rir:"1–2",c:25,d:40,r:4,t:"Ən yaxşı nəticələri qeyd edin."}};
+const WARM="5 dəq velosiped · Dead Bug 2×8 · Adductor/abductor maşını 2×15 · ilk hərəkətdə 1–2 yüngül isinmə seti";
+const CARDIO_OPTS=["Incline Treadmill Walk","Recumbent Bike","Vario Elliptical","Concept2 Rower","Bike"];
+const PLAN={
+ A:{title:"İtələmə + ayaq önü",when:"Bazar ertəsi, axşam",ex:[
+  {ss:"1",n:"Seated Leg Press (Selection)",alt:"Pure Strength Leg Press, qısa amplituda",d:"3 × 10–12",r:"90 san",wt:"RIR-ə görə",t:"wr",q:"seated leg press machine proper form",
+   cue:["Ayaqlar platformanın ortasında, çiyin enində","Bel söykənəcəkdən ayrılmayan dərinliyə qədər enin","Dizlər barmaqlar istiqamətində; yuxarıda dizi kilidləməyin"]},
+  {ss:"2a",n:"Incline Dumbbell Press (30°)",alt:"Smith Machine Incline Press",d:"3 × 10–12",r:"—",wt:"14–16 kq / əl",t:"wr",q:"incline dumbbell press 30 degree proper form",
+   cue:["Kürəklər arxaya-aşağı sıxılı, dirsəklər gövdəyə ~45°","Aşağıda 1 san saxlayın","Bel skamyadan qopmasın"]},
+  {ss:"2b",n:"Pure Strength Row (chest-supported)",alt:"Selection Low Row",d:"3 × 10–12",r:"75 san",wt:"RIR-ə görə",t:"wr",q:"chest supported row machine form",
+   cue:["Sinə yastıqda","Əvvəl kürəkləri sıxın, sonra dirsəkləri arxaya çəkin","Sol qolun geri qalıb-qalmadığına baxın"]},
+  {ss:"3a",n:"Seated Dumbbell Shoulder Press",alt:"Pure Strength Shoulder Press",d:"3 × 10–12",r:"—",wt:"14–16 kq / əl",t:"wr",q:"seated dumbbell shoulder press proper form",
+   cue:["Bel arxalığa yapışıq, qabırğalar aşağı — beli əyərək itələməyin","Hantelləri qulaq səviyyəsinə qədər endirin","Yük yana sürüşən kimi seti bitirin"]},
+  {ss:"3b",n:"Seated Leg Curl (Selection)",alt:"Cable Leg Curl (ankle strap)",d:"3 × 12–15",r:"60 san",wt:"RIR-ə görə",t:"wr",q:"seated leg curl machine proper form",
+   cue:["Diz maşının fırlanma oxu ilə üst-üstə","Qaldırma 1 san, endirmə 2–3 san"]},
+  {ss:"4a",n:"Single-Arm Cable Lateral Raise",alt:"Dumbbell Lateral Raise",d:"3 × 12–15",r:"—",wt:"yüngül",t:"uni",q:"single arm cable lateral raise form",
+   cue:["Kabel bədənin qarşı tərəfindən keçir","Dirsək yüngül bükük; dirsəyi yana-yuxarı, çiyin səviyyəsindən yuxarı yox","Əvvəl sol"]},
+  {ss:"4b",n:"Calf Press (Pure Strength)",alt:"Calf Raise on Leg Press",d:"3 × 15",r:"45 san",wt:"RIR-ə görə",t:"wr",q:"calf press on leg press machine form",
+   cue:["Aşağıda 2 san tam dartılma, yuxarıda 1 san sıxma","Yay kimi sıçramayın"]},
+  {ss:"5",n:"Dead Bug",d:"3 × 8 / tərəf",r:"30 san",wt:"bədən çəkisi",t:"bw",q:"dead bug exercise proper form",
+   cue:["Bel yerə basılı","Nəfəs verərkən əks qol-ayağı uzadın","Bel qalxırsa, amplitudanı azaldın"]},
+  {ss:"K",n:"Kardio: Incline Treadmill Walk",d:"CARDIO",r:"—",wt:"8–12% meyl, 5–6 km/saat",t:"cardio",def:"Incline Treadmill Walk",q:"incline treadmill walk proper form no handrails",
+   cue:["Tutacaqlardan tutmadan","Danışa biləcəyiniz temp"]}]},
+ B:{title:"Sağrı + dartma",when:"Çərşənbə, axşam",ex:[
+  {ss:"1",n:"Smith Machine Hip Thrust",alt:"Barbell Hip Thrust / Glute Bridge",d:"3 × 10–12",r:"90 san",wt:"50–60 kq",t:"wr",q:"smith machine hip thrust proper form",
+   cue:["Kürəklərin alt ucu skamyada, ştanq yastıqla çanaq sümüyündə","Yuxarıda çənə və qabırğalar aşağı, çanağı altına fırladın, 1 san sıxın","Beli əyməyin; boynu arxaya atmayın"]},
+  {ss:"2a",n:"Lat Pulldown (Selection)",alt:"V-Grip Pulldown / Single-Arm Cable Pulldown",d:"3 × 10–12",r:"—",wt:"40–50 kq",t:"wr",q:"lat pulldown proper form",
+   cue:["Əvvəl çiyinləri aşağı salın, sonra dirsəkləri ombalara doğru çəkin","Gövdə 10–15°-dən çox arxaya yatmasın"]},
+  {ss:"2b",n:"Pure Strength Chest Press",alt:"Selection Chest Press",d:"3 × 10–12",r:"75 san",wt:"35–45 kq",t:"wr",q:"machine chest press proper form",
+   cue:["Tutacaqlar sinənin orta xətti səviyyəsində","Kürəklər yastığa sıxılı, çiyinlər önə qaçmasın"]},
+  {ss:"3a",n:"Dumbbell Romanian Deadlift",alt:"Smith Machine RDL",d:"3 × 10–12",r:"—",wt:"RIR-ə görə",t:"wr",q:"dumbbell romanian deadlift proper form",
+   cue:["Dizlər yüngül bükük, çanağı arxaya itələyin","Hantellər budlara yaxın","Budun arxasında dartılma hiss edəndə dayanın — bel yumrulanmasın"]},
+  {ss:"3b",n:"Cable Face Pull (rope)",d:"3 × 15",r:"60 san",wt:"yüngül",t:"wr",q:"cable face pull rope proper form",
+   cue:["Kabel göz səviyyəsində","Kəndiri üzə doğru çəkib əlləri yanlara ayırın, dirsəklər yuxarıda"]},
+  {ss:"4a",n:"Dumbbell Split Squat",alt:"Smith Machine Split Squat",d:"3 × 10 / ayaq",r:"—",wt:"RIR-ə görə",t:"uni",q:"dumbbell split squat glute focus form",
+   cue:["Gövdə bir az önə meylli, ön diz barmaqlar istiqamətində","Əvvəl sol ayaq; sağ ayaq soldan çox etməsin"]},
+  {ss:"4b",n:"Biceps Curl Machine",alt:"Seated Dumbbell Curl",d:"3 × 12–15",r:"60 san",wt:"RIR-ə görə",t:"wr",q:"biceps curl machine proper form",
+   cue:["Dirsək maşının oxu ilə üst-üstə","Endirmə 2–3 san, qolu tam açın, yellənməyin"]},
+  {ss:"5",n:"Side Plank",d:"3 set",r:"30 san",wt:"bədən çəkisi",t:"time",q:"side plank proper form",
+   cue:["Sol tərəf 30–40 san, sağ tərəf 20–25 san","Baş, çanaq və topuqlar bir xətt üzrə"]},
+  {ss:"K",n:"Kardio: Recumbent Bike",d:"CARDIO",r:"—",wt:"orta müqavimət",t:"cardio",def:"Recumbent Bike",q:"recumbent bike zone 2 cardio",
+   cue:["Danışa biləcəyiniz temp"]}]},
+ C:{title:"Birtərəfli iş + tarazlıq",when:"Cümə, axşam",ex:[
+  {ss:"1",n:"Goblet Squat",alt:"Smith Machine Squat (feet forward)",d:"3 × 12–15",r:"90 san",wt:"16–20 kq",t:"wr",q:"goblet squat proper form",
+   cue:["Hantel sinəyə yapışıq","Bel neytral qaldığı dərinliyə qədər enin","Dizlər içəri düşməsin"]},
+  {ss:"2a",n:"Single-Arm Dumbbell Row",alt:"Pure Strength Row, bir əl",d:"3 × 10–12 / əl",r:"—",wt:"RIR-ə görə",t:"uni",q:"single arm dumbbell row proper form",
+   cue:["Bir əl və diz skamyada, bel düz","Dirsəyi ombaya doğru çəkin, gövdəni fırlatmayın","Əvvəl sol"]},
+  {ss:"2b",n:"Flat Dumbbell Press",alt:"Smith Machine Flat Press",d:"3 × 10–12",r:"75 san",wt:"16–18 kq / əl",t:"wr",q:"flat dumbbell bench press proper form",
+   cue:["Kürəklər sıxılı, dirsəklər ~45°, bel skamyada"]},
+  {ss:"3a",n:"Pec Fly Machine",alt:"Cable Crossover Fly",d:"3 × 12–15",r:"—",wt:"RIR-ə görə",t:"wr",q:"pec deck fly machine proper form",
+   cue:["Tutacaqlar çiyin səviyyəsindən bir az aşağı, dirsəklər yüngül bükük","Qolları arxaya həddən artıq açmayın","Ortada 1 san sıxın"]},
+  {ss:"3b",n:"Rear Kick (Pure Strength)",alt:"Cable Glute Kickback",d:"3 × 12–15 / ayaq",r:"60 san",wt:"RIR-ə görə",t:"uni",q:"technogym pure strength rear kick glute",
+   cue:["Gövdə yastıqda sabit","Ayağı sağrı ilə arxaya itələyin; beli əyməyin","Əvvəl sol"]},
+  {ss:"4a",n:"Dumbbell Lateral Raise",alt:"Cable Lateral Raise",d:"3 × 15",r:"—",wt:"yüngül",t:"wr",q:"dumbbell lateral raise proper form",
+   cue:["Dirsək önə, çiyin səviyyəsinə qədər","Yellənmədən"]},
+  {ss:"4b",n:"Upper Back Machine (wide elbows)",alt:"Cable Reverse Fly",d:"3 × 15",r:"60 san",wt:"RIR-ə görə",t:"wr",q:"reverse fly machine rear delt upper back form",
+   cue:["Sinə yastıqda","Dirsəkləri yana-arxaya açın, kürəkləri sıxın; çiyinlər qalxmasın"]},
+  {ss:"5a",n:"Adductor Machine",alt:"Cable Hip Adduction",d:"3 × 15",r:"—",wt:"RIR-ə görə",t:"wr",q:"hip adductor machine proper form",
+   cue:["Açılışı dartılma hiss olunan yerə qurun","Nəzarətli, 2 san qayıtma"]},
+  {ss:"5b",n:"Cable Triceps Pushdown (rope)",alt:"Straight-Bar Pushdown",d:"3 × 12–15",r:"45 san",wt:"RIR-ə görə",t:"wr",q:"cable rope triceps pushdown proper form",
+   cue:["Dirsəklər gövdəyə yapışıq","Aşağıda kəndiri ayırıb qolu tam açın"]},
+  {ss:"K",n:"Kardio: Elliptical / Concept2",d:"CARDIO",r:"—",wt:"rahat-orta temp",t:"cardio",def:"Vario Elliptical",q:"concept2 rower technique beginner",
+   cue:["Concept2: ayaqlar itələyir → gövdə bir az geri → qollar sinəyə; qayıdarkən tərsinə","Bel düz, damper 4–6"]}]},
+ D:{title:"Kardio + kondisiya",when:"Şənbə və ya bazar, gündüz, ~60 dəq",ex:[
+  {ss:"1",n:"İsinmə: Easy Bike / Walk",d:"5 dəq",r:"—",wt:"",t:"check",q:"",cue:["Yüngül tempdə"]},
+  {ss:"2",n:"Zona-2 kardio",d:"DZONE",r:"—",wt:"Incline Walk, Rower, Bike və ya Elliptical",t:"cardio",def:"Concept2 Rower",q:"zone 2 cardio explained heart rate",
+   cue:["Danışa bilirsiniz, mahnı oxuya bilmirsiniz","Nəbz təxminən 105–125 vuruş/dəq"]},
+  {ss:"3",n:"Kondisiya dövrəsi",d:"DROUNDS",r:"dövrələr arası 90 san",wt:"",t:"rounds",q:"battle rope basics form",
+   cue:["a) Battle Rope — 20 san: ayaqlar yarımbükük, qarın möhkəm","b) Wall Ball — 10 təkrar (4–6 kq): qabırğalar aşağı, beli arxaya əyməyin","c) Suitcase Carry — 20 m / tərəf: gövdə dik, yana əyilməyin","d) Concept2 Rower — 200 m"],
+   links:[["Battle Rope","battle rope waves proper form"],["Wall Ball","wall ball shot proper form"],["Suitcase Carry","suitcase carry proper form"]]},
+  {ss:"4",n:"Mobillik və korreksiya",d:"10 dəq",r:"—",wt:"",t:"check",q:"",
+   cue:["Hip Flexor Stretch 2 × 40 san / tərəf — sağrını sıxın ki, bel əyilməsin","Cat-Cow 10 təkrar, kiçik amplituda","Pallof Press 3 × 10 / tərəf","Open Book 8 / tərəf","Kegel 3 × 10"],
+   links:[["Hip Flexor Stretch","half kneeling hip flexor stretch posterior pelvic tilt"],["Pallof Press","pallof press proper form"],["Open Book","open book thoracic rotation stretch"],["Cat-Cow","cat cow stretch proper form"]]}]}
+};
+const ORDER=["A","B","C","D"];
+const KEY="tural_forma_v1";
+let state={workouts:[],body:[],start:null,updatedAt:0};
+
+function load(){try{const s=localStorage.getItem(KEY);if(s){const p=JSON.parse(s);if(p&&p.workouts)state=Object.assign({start:null},p);}}catch(e){}}
+function persist(){
+  state.updatedAt=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+}
+function setSync(t){document.getElementById("sync").textContent=t;}
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("on"),1800);}
+const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);};
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function autoWeek(){if(!state.start)return 1;const d=(new Date(today())-new Date(state.start))/864e5;return Math.min(4,Math.max(1,Math.floor(d/7)+1));}
+let curWeek=null,curDay=null;
+function wkv(){return WEEKS[curWeek||autoWeek()];}
+function dText(e){const w=wkv();if(e.d==="CARDIO")return w.c+" dəq";if(e.d==="DZONE")return w.d+" dəq";if(e.d==="DROUNDS")return w.r+" dövrə";return e.d;}
+function nextDay(){
+  const main=state.workouts.filter(w=>w.day!=="D").sort((a,b)=>a.date<b.date?-1:1);
+  if(!main.length)return "A";return {A:"B",B:"C",C:"A"}[main[main.length-1].day]||"A";
+}
+
+function renderWeek(){
+  const aw=autoWeek(),cw=curWeek||aw;
+  document.getElementById("wk").innerHTML=[1,2,3,4].map(i=>`<button type="button" aria-pressed="${i===cw}" data-w="${i}">${i}</button>`).join("");
+  document.querySelectorAll("#wk button").forEach(b=>b.onclick=()=>{curWeek=+b.dataset.w;renderWeek();renderDay();renderWForm();});
+  const w=WEEKS[cw];
+  document.getElementById("wkinfo").innerHTML=`RIR ${w.rir} · kardio ${w.c} dəq · D günü ${w.d} dəq + ${w.r} dövrə. ${esc(w.t)}`+
+    (state.start?` <br>Başlanğıc: ${esc(state.start)}${cw!==aw?" (hazırda həftə "+aw+")":""}.`:` <br>Plan ilk məşqi qeyd etdiyiniz gündən hesablanacaq.`);
+}
+function renderDays(){
+  const nx=nextDay(); if(!curDay)curDay=nx;
+  document.getElementById("days").innerHTML=ORDER.map(k=>
+    `<button type="button" aria-pressed="${k===curDay}" data-day="${k}"><b>${k}</b><span>${k==="D"?"kardio":esc(PLAN[k].when.split(",")[0])}</span>${k===nx?'<span class="next">növbəti</span>':''}</button>`).join("");
+  document.querySelectorAll("#days button").forEach(b=>b.onclick=()=>{curDay=b.dataset.day;renderDays();});
+  renderDay();
+}
+function linkHtml(e){
+  let h="";
+  if(e.q)h+=`<a class="vid" target="_blank" rel="noopener" href="${yt(e.q)}">YouTube-da texnika: ${esc(e.n.replace("Kardio: ",""))}</a> `;
+  if(e.links)h+=e.links.map(l=>`<a class="vid" target="_blank" rel="noopener" href="${yt(l[1])}">YouTube: ${esc(l[0])}</a>`).join(" ");
+  return h?`<div>${h}</div>`:"";
+}
+function renderDay(){
+  const p=PLAN[curDay];
+  const ex=p.ex.map(e=>`<details class="ex"><summary><span class="exn"><span class="ssl">${esc(e.ss)}</span>${esc(e.n)}${e.t==="uni"?'<span class="tag l">sol əvvəl</span>':''}</span><span class="exd">${esc(dText(e))}</span><span class="exs">${e.wt?esc(e.wt)+" · ":""}fasilə ${esc(e.r)}</span></summary><div class="cue"><ul>${e.cue.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>${e.alt?`<p class="alt">Alternativ: ${esc(e.alt)}</p>`:""}${linkHtml(e)}</div></details>`).join("");
+  document.getElementById("dayview").innerHTML=`
+    <div class="dayhead"><span class="big">${curDay}</span><div><h2>${esc(p.title)}</h2><p>${esc(p.when)}</p></div></div>
+    ${curDay!=="D"?`<div class="block"><h3>İsinmə · 10 dəq</h3><div class="cue" style="padding-top:0">${esc(WARM)}</div></div>`:""}
+    <div class="block"><h3>${curDay==="D"?"Hissələr":"Güc hissəsi · RIR "+esc(wkv().rir)+" · hər hərəkət 3 set"}</h3>${ex}</div>
+    ${curDay!=="D"?`<p class="note">"a" və "b" supersetdir: 2a setindən dərhal sonra 2b seti, sonra fasilə. Kəskin və ya oynaq ağrısında dayanıb alternativi edin.</p>`:`<p class="note">Tam krossfit məşqi bel üçün risklidir və güc günlərinin bərpasını pozur; ona görə əsas hissə sakit zona-2 kardiodur.</p>`}`;
+}
+
+/* LOG */
+function lastFor(day){return state.workouts.filter(w=>w.day===day).sort((a,b)=>a.date<b.date?1:-1)[0];}
+const ph=(v,u,d)=>v?esc(v)+(u?" "+u:""):d;
+const SETT=['wr','uni','bw','time'];let fc={},fprev={};
+function exForm(e,i,prev){
+  const nm=esc(e.n), P=(s,k)=>(prev[s]||{})[k];
+  if(e.t==="wr"||e.t==="uni"||e.t==="bw"||e.t==="time"){
+    let head,cols,cls;
+    if(e.t==="wr"){cls="";head=["kq","təkrar"];cols=[["w","kq"],["r","təkr"]];}
+    if(e.t==="uni"){cls="c4";head=["kq","sol","sağ"];cols=[["w","kq"],["l","sol"],["rr","sağ"]];}
+    if(e.t==="bw"){cls="c1";head=["təkrar / tərəf"];cols=[["r","təkr"]];}
+    if(e.t==="time"){cls="";head=["sol, san","sağ, san"];cols=[["l","san"],["rr","san"]];}
+    let rows=`<span></span>${head.map(h=>`<span class="hd">${h}</span>`).join("")}`;
+    const n=fc[i]||3;for(let s=0;s<n;s++){rows+=`<span>${s+1}</span>`+cols.map(([k,u])=>`<input inputmode="${k==="w"?"decimal":"numeric"}" aria-label="${nm} set ${s+1} ${u}" data-i="${i}" data-s="${s}" data-k="${k}" placeholder="${ph(P(s,k),"",u)}">`).join("");}
+    return `<div class="sets ${cls}">${rows}</div><div class="setctl"><button type="button" data-a="-" data-x="${i}" ${n<=1?"disabled":""} aria-label="${nm}: set azalt">− Set</button><span>${n} set</span><button type="button" data-a="+" data-x="${i}" ${n>=10?"disabled":""} aria-label="${nm}: set əlavə et">+ Set</button></div>`;
+  }
+  if(e.t==="cardio"){
+    const m=P(0,"m")||e.def;
+    return `<div class="row2" style="margin:0"><div><label class="f">Maşın</label><select class="in" data-i="${i}" data-s="0" data-k="m">${CARDIO_OPTS.map(o=>`<option${o===m?" selected":""}>${o}</option>`).join("")}</select></div>
+      <div><label class="f">Dəqiqə</label><input class="in" inputmode="numeric" data-i="${i}" data-s="0" data-k="min" placeholder="${ph(P(0,"min"),"dəq",dText(e))}"></div></div>
+      <div class="row2" style="margin:8px 0 0"><div><label class="f">Orta nəbz</label><input class="in" inputmode="numeric" data-i="${i}" data-s="0" data-k="hr" placeholder="${ph(P(0,"hr"),"","məs. 118")}"></div>
+      <div><label class="f">Məsafə, km</label><input class="in" inputmode="decimal" data-i="${i}" data-s="0" data-k="km" placeholder="${ph(P(0,"km"),"km","istəyə görə")}"></div></div>`;
+  }
+  if(e.t==="rounds"){
+    return `<div class="row2" style="margin:0"><div><label class="f">Tamamlanan dövrə</label><input class="in" inputmode="numeric" data-i="${i}" data-s="0" data-k="n" placeholder="${ph(P(0,"n"),"dövrə",dText(e))}"></div>
+      <div><label class="f">Wall ball, kq</label><input class="in" inputmode="decimal" data-i="${i}" data-s="0" data-k="wb" placeholder="${ph(P(0,"wb"),"kq","4–6")}"></div></div>`;
+  }
+  return `<label class="chk"><input type="checkbox" data-i="${i}" data-s="0" data-k="done"> Edildi</label>`;
+}
+function lexInner(e,i,prev){return `<div class="h"><span><span class="ssl">${esc(e.ss)}</span>${esc(e.n)}</span><small>${esc(dText(e))}</small></div>${exForm(e,i,prev)}`;}
+function changeSets(i,d){
+  const e=PLAN[document.getElementById("wday").value].ex[i],box=document.getElementById("lex-"+i),vals={};
+  box.querySelectorAll("input[data-k]").forEach(x=>{if(x.value)vals[x.dataset.s+"|"+x.dataset.k]=x.value;});
+  fc[i]=Math.min(10,Math.max(1,(fc[i]||3)+d));
+  box.innerHTML=lexInner(e,i,fprev[i]||[]);
+  box.querySelectorAll("input[data-k]").forEach(x=>{const v=vals[x.dataset.s+"|"+x.dataset.k];if(v)x.value=v;});
+  const f=box.querySelectorAll("button[data-a='"+(d>0?"+":"-")+"']")[0];if(f&&!f.disabled)f.focus();
+}
+function renderWForm(){
+  const day=document.getElementById("wday").value,p=PLAN[day],last=lastFor(day);
+  document.getElementById("wlast").textContent=last?`Əvvəlki ${day} günü: ${last.date}. Boz rəqəmlər o günün nəticəsidir.`:`${day} günü üçün hələ qeyd yoxdur.`;
+  fc={};fprev={};
+  document.getElementById("wform").innerHTML=p.ex.map((e,i)=>{
+    const prev=last&&last.ex[e.n]||[];fprev[i]=prev;
+    if(SETT.includes(e.t))fc[i]=Math.min(10,Math.max(1,prev.length||3));
+    return `<div class="lex" id="lex-${i}">${lexInner(e,i,prev)}</div>`;
+  }).join("")+`<div class="lex"><label class="f" for="wnote">Qeyd (hiss, ağrı, texnika)</label><input class="in" id="wnote" placeholder="məs. hip thrust 55 kq rahat idi"></div>`;
+}
+function saveW(){
+  const day=document.getElementById("wday").value,p=PLAN[day],ex={};let any=false;
+  document.querySelectorAll("#wform [data-i]").forEach(inp=>{
+    const e=p.ex[+inp.dataset.i],s=+inp.dataset.s,k=inp.dataset.k;let v;
+    if(inp.type==="checkbox"){if(!inp.checked)return;v=true;}
+    else if(inp.tagName==="SELECT"){v=inp.value;}
+    else{v=inp.value.trim().replace(",",".");if(!v)return;}
+    if(inp.tagName!=="SELECT")any=true;
+    ex[e.n]=ex[e.n]||[];ex[e.n][s]=ex[e.n][s]||{};ex[e.n][s][k]=v;
+  });
+  // drop cardio entries that only carry the machine select
+  Object.keys(ex).forEach(n=>{ex[n]=Array.from(ex[n],x=>x||{});if(ex[n].length===1&&Object.keys(ex[n][0]).join()==="m")delete ex[n];});
+  const note=document.getElementById("wnote").value.trim();
+  if(!any&&!note){toast("Ən azı bir nəticə daxil edin");return;}
+  const date=document.getElementById("wdate").value||today();
+  if(!state.start)state.start=date;
+  state.workouts.push({id:Date.now(),date,day,week:curWeek||autoWeek(),ex,note});
+  persist();toast("Məşq yadda saxlandı");
+  curDay=null;renderWeek();renderDays();
+  document.getElementById("wday").value=nextDay();renderWForm();renderHist();
+}
+function saveB(){
+  const g=id=>document.getElementById(id).value.trim().replace(",",".");
+  const rec={date:g("bdate")||today(),w:g("bw"),waist:g("bwaist"),sleep:g("bsleep"),steps:g("bsteps"),energy:g("benergy"),kegel:g("bkegel")};
+  if(!["w","waist","sleep","steps","energy","kegel"].some(k=>rec[k])){toast("Ən azı bir göstərici daxil edin");return;}
+  const old=state.body.find(b=>b.date===rec.date)||{};
+  Object.keys(rec).forEach(k=>{if(!rec[k]&&old[k])rec[k]=old[k];});
+  state.body=state.body.filter(b=>b.date!==rec.date);state.body.push(rec);
+  persist();toast("Ölçü yadda saxlandı");["bw","bwaist","bsleep","bsteps","benergy","bkegel"].forEach(i=>document.getElementById(i).value="");
+  renderBody();renderHist();renderHeader();
+}
+function renderHeader(){const w=state.body.filter(b=>b.w).sort((a,b)=>a.date<b.date?-1:1);document.getElementById("curw").textContent=(w.length?w[w.length-1].w:"76")+" kq";}
+const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+function renderBody(){
+  const b=[...state.body].sort((x,y)=>x.date<y.date?-1:1);
+  const ws=b.filter(x=>x.w).map(x=>({d:x.date,v:parseFloat(x.w)}));
+  const a7=avg(ws.slice(-7).map(x=>x.v)),s7=avg(b.filter(x=>x.sleep).slice(-7).map(x=>parseFloat(x.sleep))),wa=b.filter(x=>x.waist);
+  document.getElementById("bstats").innerHTML=`<div><b>${a7?a7.toFixed(1):"—"}</b><span>son 7 qeydin ortası, kq</span></div>
+    <div><b>${a7?Math.max(0,a7-74).toFixed(1):"—"}</b><span>hədəfə qalıb, kq</span></div>
+    <div><b>${wa.length?esc(wa[wa.length-1].waist):"—"}</b><span>son bel, sm</span></div>`;
+  const box=document.getElementById("bchart");
+  const sl=s7?`<p class="note">Son yuxu ortası: ${s7.toFixed(1)} saat${s7<7?" — hədəf 7–8 saatdır.":"."}</p>`:"";
+  if(ws.length<2){box.innerHTML=`<p class="note">Qrafik üçün ən azı 2 çəki qeydi lazımdır. Həftədə 3–4 dəfə səhər, tualetdən sonra ölçün.</p>`+sl;return;}
+  const pts=ws.slice(-30),W=320,H=150,P=24,vals=pts.map(p=>p.v).concat([74]),mn=Math.min(...vals)-.5,mx=Math.max(...vals)+.5;
+  const x=i=>P+i*(W-2*P)/(pts.length-1),y=v=>H-P-(v-mn)*(H-2*P)/(mx-mn);
+  box.innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Çəki trendi">
+    <line x1="${P}" x2="${W-P}" y1="${y(74)}" y2="${y(74)}" stroke="var(--ok)" stroke-dasharray="4 4"/>
+    <text x="${W-P}" y="${y(74)-5}" text-anchor="end" font-size="11" fill="var(--ok)">74 kq</text>
+    <path d="${pts.map((p,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(" ")}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+    ${pts.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p.v)}" r="3" fill="var(--accent)"/>`).join("")}
+    <text x="${P}" y="${H-6}" font-size="11" fill="var(--muted)">${esc(pts[0].d.slice(5))}</text>
+    <text x="${W-P}" y="${H-6}" text-anchor="end" font-size="11" fill="var(--muted)">${esc(pts[pts.length-1].d.slice(5))}</text>
+    <text x="${P}" y="14" font-size="11" fill="var(--muted)">${mx.toFixed(1)}</text></svg>`+sl;
+}
+function renderHist(){
+  const items=[...state.workouts.map(w=>({t:"w",date:w.date,id:w.id,txt:`${w.day} günü${w.week?" (həftə "+w.week+")":""} — ${Object.keys(w.ex).length} qeyd${w.note?" · "+w.note:""}`})),
+    ...state.body.map(b=>({t:"b",date:b.date,id:b.date,txt:[b.w&&b.w+" kq",b.waist&&"bel "+b.waist,b.sleep&&"yuxu "+b.sleep+" s",b.steps&&b.steps+"k addım",b.energy&&"enerji "+b.energy,b.kegel&&"kegel "+b.kegel].filter(Boolean).join(" · ")}))]
+    .sort((a,b)=>a.date<b.date?1:-1);
+  const el=document.getElementById("hist");
+  if(!items.length){el.innerHTML=`<p class="note">Hələ qeyd yoxdur. İlk məşqdən sonra "Məşq" bölməsində nəticələri daxil edin.</p>`;return;}
+  el.innerHTML=items.slice(0,80).map(i=>`<div class="it"><span><b>${esc(i.date)}</b> ${esc(i.txt)}</span><button type="button" data-t="${i.t}" data-id="${esc(i.id)}">Sil</button></div>`).join("");
+  el.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    if(!confirm("Bu qeyd silinsin?"))return;
+    if(b.dataset.t==="w")state.workouts=state.workouts.filter(w=>String(w.id)!==b.dataset.id);
+    else state.body=state.body.filter(x=>x.date!==b.dataset.id);
+    if(!state.workouts.length)state.start=null;
+    persist();renderAll();
+  });
+}
+
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.id==="v-"+b.dataset.tab));
+  window.scrollTo(0,0);
+});
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  ["w","b","h"].forEach(k=>document.getElementById("seg-"+k).hidden=k!==b.dataset.seg);
+});
+function doImport(txt){
+  let d;try{d=JSON.parse(txt);}catch(e){toast("Mətn oxunmadı — tam kopyalandığını yoxlayın");return;}
+  if(!d||!Array.isArray(d.workouts)){toast("Bu fayl proqramın ehtiyat faylı deyil");return;}
+  const ids=new Set(state.workouts.map(w=>String(w.id)));let nw=0,nb=0;
+  d.workouts.forEach(w=>{if(w&&!ids.has(String(w.id))){state.workouts.push(w);nw++;}});
+  const bd=new Map(state.body.map(b=>[b.date,b]));
+  (d.body||[]).forEach(b=>{if(b&&b.date&&!bd.has(b.date)){state.body.push(b);nb++;}});
+  if(d.start&&(!state.start||d.start<state.start))state.start=d.start;
+  persist();renderAll();toast(`İdxal edildi: ${nw} məşq, ${nb} ölçü`);document.getElementById("impt").value="";
+}
+document.getElementById("impbtn").onclick=()=>{const t=document.getElementById("impt").value.trim();if(!t){toast("Əvvəlcə mətni yapışdırın");return;}doImport(t);};
+document.getElementById("impf").onchange=ev=>{const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>doImport(String(r.result));r.onerror=()=>toast("Fayl oxunmadı");r.readAsText(f);ev.target.value="";};
+document.getElementById("dl").onclick=async()=>{
+  const name="forma-ehtiyat-"+today()+".json",txt=JSON.stringify(state,null,1);
+  try{const file=new File([txt],name,{type:"application/json"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return;}}catch(e){if(e&&e.name==="AbortError")return;}
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"application/json"}));a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);toast("Fayl yükləndi");
+};
+document.getElementById("export").onclick=async()=>{
+  try{await navigator.clipboard.writeText(JSON.stringify(state,null,1));toast("Kopyalandı — çatda paylaşa bilərsiniz");}catch(e){toast("Kopyalamaq alınmadı");}
+};
+function renderAll(){renderHeader();renderWeek();curDay=null;renderDays();document.getElementById("wday").value=nextDay();renderWForm();renderBody();renderHist();}
+
+load();
+document.getElementById("wday").innerHTML=ORDER.map(k=>`<option value="${k}">${k} — ${esc(PLAN[k].title)}</option>`).join("");
+document.getElementById("wday").onchange=renderWForm;
+document.getElementById("wform").addEventListener("click",ev=>{const b=ev.target.closest("button[data-a]");if(b)changeSets(+b.dataset.x,b.dataset.a==="+"?1:-1);});
+document.getElementById("wdate").value=today();document.getElementById("bdate").value=today();
+document.getElementById("wsave").onclick=saveW;document.getElementById("bsave").onclick=saveB;
+renderAll();
+
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+function netState(){setSync(navigator.onLine?"Məlumat bu telefonda saxlanır. Ayda bir dəfə ehtiyat nüsxə götürün.":"Oflayn rejim — hər şey işləyir, məlumat telefonda saxlanır.");}
+window.addEventListener("online",netState);window.addEventListener("offline",netState);netState();
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("./sw.js").catch(()=>{});});}
+</script>
+</body>
+</html>
